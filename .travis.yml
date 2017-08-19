@@ -2,19 +2,27 @@ sudo: false
 language: java
 cache:
   directories:
-    - $HOME/.m2
-
+  - "$HOME/.m2/repository"
+  - "$HOME/.sonar/cache"
+addons:
+  sonarcloud:
+    organization: net-bhardy
+    key: net.bhardy.bizzo:bizzo-core
+    token: $SONAR_TOKEN
+    github_token: $SONAR_GIT_TOKEN
 jdk:
-  - oraclejdk8
-
-
+- oraclejdk8
 before_install:
-  - wget https://archive.apache.org/dist/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.zip
-  - unzip -qq apache-maven-3.3.9-bin.zip
-  - export M2_HOME=$PWD/apache-maven-3.3.9
-  - export PATH=$M2_HOME/bin:$PATH
-
-script: mvn -B -fae clean install
-
+- wget https://archive.apache.org/dist/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.zip
+- unzip -qq apache-maven-3.3.9-bin.zip
+- export M2_HOME=$PWD/apache-maven-3.3.9
+- export PATH=$M2_HOME/bin:$PATH
+script:
+- sonar-scanner -X
+- mvn -B -fae clean install sonar:sonar
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
+- bash <(curl -s https://codecov.io/bash)
+env:
+  global:
+  - secure: izegsEuCgZlfP8zPWb9VVgqTdUuyQTOAjVO7EpQlpluy0u1GOeoPzmixr9DZ55MQyLSWX3AXQ9kLkwIgHKNT9NlqEas/Y9ORl9nEVBiojoEUuGhYyIZf3RkcfhVc54oUxPisnu5WQ3uU8I2r8Yf6y+Wyga7gwmkxfQENW6vSuNDKEKzwCpl2Ri6w/eSmqVniklgqmQ1U5SbsVZZmv2u+j7SB7grbZMdWnE9kOMCMNZQ5C4VJK7snk0ve0mNm7vQ5SZrxBe1fXYC8XIvdfWYPzRHH/cFsQYSWdc1gHgptgUdoWfb34kFBQnJIXDbkcaaYLOCGf4w5Tvg3szRnWDnJ+WPPFdnIURi4MOHyPT8ddmtska4cLccdAvqQaAtzeJFD6e8uLtmfBsewshviwKNL0qW0zPQhFTTeake48KcSx9hhenCN5yMfyIGvstiCxg5x9dz3Z9SjewV9Jb38ODg3d9cqhgn0L4tS8atjNlp0Ak07iaoxuf+sydMQqQVuHmJApyIDE26of2hRq9U8Pz4QftWRPpjax/QnhJMeeeQ0CPinYDFOlt/hFhwAqoZCEs2b5yHF/7QDdiJvLQUTCoO30T/iWNTB107RGQfEINwSXCmgb9mH08aU55ULpJQW86iZEvXy8qYGB8BGbk4S/OSCYGl6UJjl029C5rf5cV76gP4=
+  - secure: o79XszfM2NtmDP1pN0vO8bL975rB5THGxft8trS6lfFUz3EYfG0xAWSgC4G+0hvcqC4/BL1uUCXiA3I7ioPvhNuGNJjSePSXhxbG2Ol6Vk+7gwFepMVU3SyOzVumoqkYp7Fu9rEw5Xzv9U+bV+ekcwYAI+/paDMwRxbav6rzjXFbTOmB1SFWKWzggap1hSQmsvCYkZwREdyBc/qLMqQmPJrK61m3zzukaae8XXBxcMxOMzv4Cneqn1tdJ4dkqVHBrxUGLzmWlaUxKNWMVh6buFR2c1NhiPnQG6Kc0rEXoE2U99Ln2eVVy69moQD+A6Jscj7Av90DaTg9RwzZgGcwBED7OFKN/BZYD4etYpQaFjnNNDEXhbBhDA4L5as6bWOaFoQoknbw2deloWZvRwV7GSVGHRrQswcezlN5caMW87vVQ0kPjTcyBhd63Yw5HoV7hS2UjOde3pMFTRf9RwXYvE0uMXTsl6yZzmMBPZnHGxAArwPSWZ5Dr4BWphFfdSjv2PbFAFS3LSU6iwOQaEEJGYb5cKciDOKMB6gYqOMbTVfNGVi9VT8GgGUJvoaAo3+EK5c/8DnjsY/dccpwcFVlVyCWF1mpjiyo4JHZLsQiXtzQh805ExeToC+AkVy3nCF3XOsb1CIw3a6Qf9MUxKvErD+HG4Jf3hQLMWUkqeXNUgs=
