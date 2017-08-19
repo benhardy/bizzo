@@ -17,7 +17,7 @@
 
     <groupId>net.bhardy.bizzo</groupId>
     <artifactId>bizzo-core</artifactId>
-    <version>0.1.0</version>
+    <version>0.1.1-SNAPSHOT</version>
 
     <parent>
         <groupId>org.basepom</groupId>
@@ -29,7 +29,7 @@
         <connection>scm:git:git://github.com/benhardy/bizzo.git</connection>
         <developerConnection>scm:git:git@github.com:benhardy/bizzo.git</developerConnection>
         <url>https://github.com/benhardy/bizzo</url>
-        <tag>bizzo-core-0.1.0</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <licenses>
