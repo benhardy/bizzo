@@ -2,8 +2,8 @@ sudo: false
 language: java
 cache:
   directories:
-#  - "$HOME/.m2/repository"
-#  - "$HOME/.sonar/cache"
+  - "$HOME/.m2/repository"
+  - "$HOME/.sonar/cache"
 addons:
   sonarcloud:
     organization: net-bhardy
