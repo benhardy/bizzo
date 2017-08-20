@@ -37,7 +37,11 @@ import static java.util.stream.IntStream.range;
  */
 public class PolicyBuilderImpl implements PolicyBuilder {
 
-    public int[] PROBLEM = null;
+    public int[] PROBLEM;
+
+    public PolicyBuilderImpl() {
+        int t= PROBLEM.length;
+    }
 
     @Override
     public FilterOption everyDay() {
