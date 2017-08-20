@@ -19,12 +19,12 @@ before_install:
 - export PATH=$M2_HOME/bin:$PATH
 install: /bin/true
 script:
-- test $TRAVIS_BRANCH = "master" && test $TRAVIS_PULL_REQUEST_BRANCH = "" && export ON_MASTER=true || export ON_MASTER=false
+- test $TRAVIS_BRANCH = "master" && test $TRAVIS_PULL_REQUEST_BRANCH = "" && export ON_MASTER=true || true
 - env | sort
-- test $ON_MASTER = false && mvn -B -fae clean compile test
-- test $ON_MASTER = false && sonar-scanner -X -Dsonar.projectKey=net.bhardy.bizzo:bizzo-core -Dsonar.sources=src
-- test $ON_MASTER = false && mvn -B -fae install
-- test $ON_MASTER = true && mvn -B -fae clean install sonar:sonar
+- test $ON_MASTER && mvn -B -fae clean install sonar:sonar
+- test $ON_MASTER || mvn -B -fae clean compile test
+- test $ON_MASTER || sonar-scanner -X -Dsonar.projectKey=net.bhardy.bizzo:bizzo-core -Dsonar.sources=src
+- test $ON_MASTER || mvn -B -fae install
 after_success:
 - bash <(curl -s https://codecov.io/bash)
 env:
