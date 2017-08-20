@@ -19,9 +19,8 @@ before_install:
 - export PATH=$M2_HOME/bin:$PATH
 install: /bin/true
 script:
-- env
-- sonar-scanner -X -Dsonar.projectKey=net.bhardy.bizzo:bizzo-core -Dsonar.sources=src
-- test $TRAVIS_BRANCH = "master" && test $TRAVIS_PULL_REQUEST_BRANCH = "" && mvn -B -fae clean install sonar:sonar || mvn -B -fae clean install
+- env | sort
+- sh ./.travis-build.sh
 after_success:
 - bash <(curl -s https://codecov.io/bash)
 env:
