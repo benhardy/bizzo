@@ -18,8 +18,9 @@ before_install:
 - export M2_HOME=$PWD/apache-maven-3.3.9
 - export PATH=$M2_HOME/bin:$PATH
 script:
+- env
 - sonar-scanner -X -Dsonar.projectKey=net.bhardy.bizzo:bizzo-core -Dsonar.sources=src
-- mvn -B -fae clean install sonar:sonar
+- test $TRAVIS_BRANCH = "master" && test $TRAVIS_PULL_REQUEST_BRANCH = "" && mvn -B -fae clean install sonar:sonar || mvn -B -fae clean install
 after_success:
 - bash <(curl -s https://codecov.io/bash)
 env:
