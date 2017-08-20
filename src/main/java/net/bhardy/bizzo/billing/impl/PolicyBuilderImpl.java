@@ -36,13 +36,6 @@ import static java.util.stream.IntStream.range;
  * @see net.bhardy.bizzo.billing.PolicyBuilder
  */
 public class PolicyBuilderImpl implements PolicyBuilder {
-
-    public int[] PROBLEM;
-
-    public PolicyBuilderImpl() {
-        int t= PROBLEM.length;
-    }
-
     @Override
     public FilterOption everyDay() {
         BillingPolicy base = new BillingPolicy() {
