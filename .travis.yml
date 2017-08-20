@@ -7,7 +7,7 @@ cache:
 addons:
   sonarcloud:
     organization: net-bhardy
-    key: net.bhardy.bizzo:bizzo-core
+    projectKey: net.bhardy.bizzo:bizzo-core
     token: $SONAR_TOKEN
     github_token: $SONAR_GIT_TOKEN
 jdk:
