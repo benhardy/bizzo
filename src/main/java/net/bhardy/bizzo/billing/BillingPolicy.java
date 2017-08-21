@@ -70,7 +70,7 @@ public interface BillingPolicy {
      * e.g.:<br>
      * <code>
      *     BillingPolicy payDay = BillingPolicy.builder()
-     *             .sameDayEveryMonth(15)
+     *             .monthlyOnDay(15)
      *             .filter(not(daysOfWeek(SATURDAY, SUNDAY)))
      *             .build();
      * </code>

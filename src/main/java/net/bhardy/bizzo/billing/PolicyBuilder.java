@@ -34,5 +34,5 @@ public interface PolicyBuilder {
     /**
      * This bill will be due once a a month on the specified day of month (number).
      */
-    FilterOption sameDayEveryMonth(int dayOfMonth);
+    FilterOption monthlyOnDay(int dayOfMonth);
 }

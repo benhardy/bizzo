@@ -36,7 +36,7 @@ public class PolicyBuilderTest {
     @Test
     public void cycleType_monthlySimple() {
         BillingPolicy policy = BillingPolicy.builder()
-                .sameDayEveryMonth(5)
+                .monthlyOnDay(5)
                 .build();
         assertEquals(CycleType.MONTHLY, policy.getCycleType());
     }
@@ -44,7 +44,7 @@ public class PolicyBuilderTest {
     @Test
     public void cycleType_monthlyFiltered() {
         BillingPolicy policy = BillingPolicy.builder()
-                .sameDayEveryMonth(5)
+                .monthlyOnDay(5)
                 .filter(not(daysOfWeek(WEDNESDAY)))
                 .action(NEXT_DAY)
                 .build();
@@ -114,7 +114,7 @@ public class PolicyBuilderTest {
     @Test
     public void isDueOn_monthlySimple() {
         BillingPolicy policy = BillingPolicy.builder()
-                .sameDayEveryMonth(5)
+                .monthlyOnDay(5)
                 .build();
 
         LocalDate oneSaturday = LocalDate.of(2017, 8, 5);
@@ -124,7 +124,7 @@ public class PolicyBuilderTest {
     @Test
     public void isDueOn_monthlyFiltered() {
         BillingPolicy policy = BillingPolicy.builder()
-                .sameDayEveryMonth(5)
+                .monthlyOnDay(5)
                 .filter(not(daysOfWeek(SATURDAY, SUNDAY)))
                 .action(NEXT_DAY)
                 .build();
@@ -227,7 +227,7 @@ public class PolicyBuilderTest {
     @Test
     public void upcomingDueDates_monthlySimple() {
         BillingPolicy policy = BillingPolicy.builder()
-                .sameDayEveryMonth(5)
+                .monthlyOnDay(5)
                 .build();
 
         LocalDate oneSaturday = LocalDate.of(2017, 8, 5);
@@ -247,7 +247,7 @@ public class PolicyBuilderTest {
     @Test
     public void upcomingDueDates_monthlyFiltered() {
         BillingPolicy policy = BillingPolicy.builder()
-                .sameDayEveryMonth(5)
+                .monthlyOnDay(5)
                 .filter(not(daysOfWeek(SATURDAY, SUNDAY)))
                 .action(NEXT_DAY)
                 .build();

@@ -96,7 +96,7 @@ public class PolicyBuilderImpl implements PolicyBuilder {
     }
 
     @Override
-    public FilterOption sameDayEveryMonth(int dayOfMonth) {
+    public FilterOption monthlyOnDay(int dayOfMonth) {
         BillingPolicy base = new BillingPolicy() {
             @Override
             public boolean isDueOn(LocalDate day) {
