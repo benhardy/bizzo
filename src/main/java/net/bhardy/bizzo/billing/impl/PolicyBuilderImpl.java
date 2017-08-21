@@ -66,7 +66,7 @@ public class PolicyBuilderImpl implements PolicyBuilder {
     private static final int DAYS_PER_WEEK = 7;
 
     @Override
-    public FilterOption sameDayEveryWeek(DayOfWeek onWhichDay) {
+    public FilterOption weeklyOnDay(DayOfWeek onWhichDay) {
         BillingPolicy base = new BillingPolicy() {
 
             @Override

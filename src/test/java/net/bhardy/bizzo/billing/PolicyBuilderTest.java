@@ -54,7 +54,7 @@ public class PolicyBuilderTest {
     @Test
     public void cycleType_weeklySimple() {
         BillingPolicy policy = BillingPolicy.builder()
-                .sameDayEveryWeek(FRIDAY)
+                .weeklyOnDay(FRIDAY)
                 .build();
         assertEquals(CycleType.WEEKLY, policy.getCycleType());
     }
@@ -62,7 +62,7 @@ public class PolicyBuilderTest {
     @Test
     public void cycleType_weeklyFiltered() {
         BillingPolicy policy = BillingPolicy.builder()
-                .sameDayEveryWeek(FRIDAY)
+                .weeklyOnDay(FRIDAY)
                 .filter(not(daysOfWeek(WEDNESDAY)))
                 .action(NEXT_DAY)
                 .build();
@@ -90,7 +90,7 @@ public class PolicyBuilderTest {
     @Test
     public void isDueOn_weeklySimple() {
         BillingPolicy policy = BillingPolicy.builder()
-                .sameDayEveryWeek(SATURDAY)
+                .weeklyOnDay(SATURDAY)
                 .build();
 
         LocalDate oneSaturday = LocalDate.of(2017, 8, 5);
@@ -100,7 +100,7 @@ public class PolicyBuilderTest {
     @Test
     public void isDueOn_weeklyFiltered() {
         BillingPolicy policy = BillingPolicy.builder()
-                .sameDayEveryWeek(FRIDAY)
+                .weeklyOnDay(FRIDAY)
                 .filter(not(daysOfWeek(SATURDAY, SUNDAY)))
                 .action(NEXT_DAY)
                 .build();
@@ -184,7 +184,7 @@ public class PolicyBuilderTest {
     @Test
     public void upcomingDueDates_weeklySimple() {
         BillingPolicy policy = BillingPolicy.builder()
-                .sameDayEveryWeek(FRIDAY)
+                .weeklyOnDay(FRIDAY)
                 .build();
 
         LocalDate itsFriday = LocalDate.of(2017, 8, 4);
@@ -204,7 +204,7 @@ public class PolicyBuilderTest {
     @Test
     public void upcomingDueDates_weeklyFiltered() {
         BillingPolicy policy = BillingPolicy.builder()
-                .sameDayEveryWeek(SATURDAY)
+                .weeklyOnDay(SATURDAY)
                 .filter(not(daysOfWeek(SUNDAY)))
                 .action(NEXT_DAY)
                 .build();

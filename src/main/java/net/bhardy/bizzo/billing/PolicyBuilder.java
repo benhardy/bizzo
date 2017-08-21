@@ -29,7 +29,7 @@ public interface PolicyBuilder {
     /**
      * This bill will be due once a a week on the specified day of week.
      */
-    FilterOption sameDayEveryWeek(DayOfWeek onWhichDay);
+    FilterOption weeklyOnDay(DayOfWeek onWhichDay);
 
     /**
      * This bill will be due once a a month on the specified day of month (number).
