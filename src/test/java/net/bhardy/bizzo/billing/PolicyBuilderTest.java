@@ -28,13 +28,23 @@ import static net.bhardy.bizzo.billing.PolicyFilter.daysOfWeek;
 import static net.bhardy.bizzo.billing.PolicyFilter.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  *
  */
 public class PolicyBuilderTest {
     @Test
-    public void testBuilder() {
+    public void isDueOn_monthlySimple() {
+        BillingPolicy policy = BillingPolicy.builder()
+                .sameDayEveryMonth(5)
+                .build();
+
+        LocalDate oneSaturday = LocalDate.of(2017, 8, 5);
+        assertTrue(policy.isDueOn(oneSaturday));
+    }
+    @Test
+    public void isDueOn_monthlyFiltered() {
         BillingPolicy policy = BillingPolicy.builder()
                 .sameDayEveryMonth(5)
                 .filter(not(daysOfWeek(SATURDAY, SUNDAY)))
@@ -43,6 +53,41 @@ public class PolicyBuilderTest {
 
         LocalDate oneSaturday = LocalDate.of(2017, 8, 5);
         assertFalse(policy.isDueOn(oneSaturday));
+        LocalDate maybeSunday = LocalDate.of(2017, 8, 6);
+        assertFalse(policy.isDueOn(maybeSunday));
+        LocalDate shouldBeMonday = LocalDate.of(2017, 8, 7);
+        assertTrue(policy.isDueOn(shouldBeMonday));
+    }
+
+    @Test
+    public void upcomingDueDates_monthlySimple() {
+        BillingPolicy policy = BillingPolicy.builder()
+                .sameDayEveryMonth(5)
+                .build();
+
+        LocalDate oneSaturday = LocalDate.of(2017, 8, 5);
+        List<LocalDate> nextBills = policy.upcomingDueDates(oneSaturday, 2);
+
+        LocalDate expected1 = LocalDate.of(2017, 8, 5);
+        LocalDate actual1 = nextBills.get(0);
+        assertEquals(expected1, actual1);
+        assertEquals(SATURDAY, actual1.getDayOfWeek());
+
+        LocalDate expected2 = LocalDate.of(2017, 9, 5);
+        LocalDate actual2 = nextBills.get(1);
+        assertEquals(expected2, actual2);
+        assertEquals(TUESDAY, actual2.getDayOfWeek());
+    }
+
+    @Test
+    public void upcomingDueDates_monthlyFiltered() {
+        BillingPolicy policy = BillingPolicy.builder()
+                .sameDayEveryMonth(5)
+                .filter(not(daysOfWeek(SATURDAY, SUNDAY)))
+                .action(ActionChoice.Kind.NEXT_DAY)
+                .build();
+
+        LocalDate oneSaturday = LocalDate.of(2017, 8, 5);
 
         List<LocalDate> nextBills = policy.upcomingDueDates(oneSaturday, 2);
 
