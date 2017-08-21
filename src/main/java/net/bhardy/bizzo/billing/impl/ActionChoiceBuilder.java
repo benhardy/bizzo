@@ -45,8 +45,15 @@ final class ActionChoiceBuilder implements ActionChoice {
     public FilterOption action(Kind actionKind) {
         BillingPolicy layered = new BillingPolicy() {
             @Override
-            public boolean isDueOn(LocalDate today) {
-                return underlyingPolicy.isDueOn(today) && filter.applies(today);
+            public boolean isDueOn(final LocalDate today) {
+                if (!filter.applies(today)) {
+                    return false;
+                }
+                if (underlyingPolicy.isDueOn(today)) {
+                    return true;
+                }
+                LocalDate original = findOriginalDate(today, actionKind);
+                return underlyingPolicy.isDueOn(original);
             }
 
             @Override
@@ -62,11 +69,29 @@ final class ActionChoiceBuilder implements ActionChoice {
         return policyBuilder.buildFilterOption(layered);
     }
 
+    private LocalDate findOriginalDate(LocalDate today, Kind kind) {
+        final int delta;
+        if (kind == Kind.NEXT_DAY) {
+            delta = -1;
+        } else if (kind == Kind.PREVIOUS_DAY) {
+            delta = 1;
+        } else {
+            throw new IllegalArgumentException("unwanted kind " + kind);
+        }
+        LocalDate original = today;
+        LocalDate check = today.plusDays(delta);
+        while (!filter.applies(check)) {
+            original = check;
+            check = check.plusDays(delta);
+        }
+        return original;
+    }
+
     private List<LocalDate> filterDates(LocalDate day, int howMany, Kind actionKind) {
         List<LocalDate> considering = underlyingPolicy.upcomingDueDates(day, howMany);
         List<LocalDate> filtered = new ArrayList<>();
         for (LocalDate when : considering) {
-            when = adjustDateIfNeeded(when, actionKind);
+            when = adjustDateIfNeeded(when, actionKind, false);
             if (when != null && !when.isBefore(day)) {
                 filtered.add(when);
             }
@@ -74,14 +99,15 @@ final class ActionChoiceBuilder implements ActionChoice {
         return filtered;
     }
 
-    private LocalDate adjustDateIfNeeded(LocalDate when, Kind actionKind) {
+    private LocalDate adjustDateIfNeeded(LocalDate when, Kind actionKind, boolean reversed) {
+        final int delta = reversed ? -1 : 1;
         while (when != null && !filter.applies(when)) {
             switch (actionKind) {
                 case PREVIOUS_DAY:
-                    when = when.minusDays(1);
+                    when = when.minusDays(delta);
                     break;
                 case NEXT_DAY:
-                    when = when.plusDays(1);
+                    when = when.plusDays(delta);
                     break;
                 case SKIP:
                     when = null;
