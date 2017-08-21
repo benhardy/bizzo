@@ -24,7 +24,7 @@ public interface PolicyBuilder {
     /**
      * This bill will be due every single day. Unless you do some filtering.
      */
-    FilterOption everyDay();
+    FilterOption daily();
 
     /**
      * This bill will be due once a a week on the specified day of week.

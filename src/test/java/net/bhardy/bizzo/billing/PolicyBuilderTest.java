@@ -72,7 +72,7 @@ public class PolicyBuilderTest {
     @Test
     public void cycleType_dailySimple() {
         BillingPolicy policy = BillingPolicy.builder()
-                .everyDay()
+                .daily()
                 .build();
         assertEquals(CycleType.DAILY, policy.getCycleType());
     }
@@ -80,7 +80,7 @@ public class PolicyBuilderTest {
     @Test
     public void cycleType_dailyFiltered() {
         BillingPolicy policy = BillingPolicy.builder()
-                .everyDay()
+                .daily()
                 .filter(not(daysOfWeek(WEDNESDAY)))
                 .action(NEXT_DAY)
                 .build();
@@ -140,7 +140,7 @@ public class PolicyBuilderTest {
     @Test
     public void upcomingDueDates_dailySimple() {
         BillingPolicy policy = BillingPolicy.builder()
-                .everyDay()
+                .daily()
                 .build();
 
         LocalDate oneSaturday = LocalDate.of(2017, 8, 5);
@@ -161,7 +161,7 @@ public class PolicyBuilderTest {
     @Test
     public void upcomingDueDates_dailyFiltered() {
         BillingPolicy policy = BillingPolicy.builder()
-                .everyDay()
+                .daily()
                 .filter(not(daysOfWeek(SATURDAY, SUNDAY)))
                 .action(NEXT_DAY)
                 .build();

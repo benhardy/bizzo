@@ -37,7 +37,7 @@ import static java.util.stream.IntStream.range;
  */
 public class PolicyBuilderImpl implements PolicyBuilder {
     @Override
-    public FilterOption everyDay() {
+    public FilterOption daily() {
         BillingPolicy base = new BillingPolicy() {
 
             @Override
