@@ -21,7 +21,11 @@ import org.junit.Test;
 import java.time.LocalDate;
 import java.util.List;
 
-import static java.time.DayOfWeek.*;
+import static java.time.DayOfWeek.FRIDAY;
+import static java.time.DayOfWeek.SATURDAY;
+import static java.time.DayOfWeek.SUNDAY;
+import static java.time.DayOfWeek.TUESDAY;
+import static java.time.DayOfWeek.WEDNESDAY;
 import static net.bhardy.bizzo.billing.ActionChoice.Kind.NEXT_DAY;
 import static net.bhardy.bizzo.billing.PolicyFilter.daysOfWeek;
 import static net.bhardy.bizzo.billing.PolicyFilter.not;
@@ -33,11 +37,18 @@ import static org.junit.Assert.assertTrue;
  *
  */
 public class PolicyBuilderTest {
+    private final LocalDate friday4th = LocalDate.of(2017, 8, 4);
+    private final LocalDate saturday5th = LocalDate.of(2017, 8, 5);
+    private final LocalDate sunday6th = LocalDate.of(2017, 8, 6);
+    private final LocalDate monday7th = LocalDate.of(2017, 8, 7);
+    private final LocalDate tuesday8th = LocalDate.of(2017, 8, 8);
+
     @Test
     public void cycleType_monthlySimple() {
         BillingPolicy policy = BillingPolicy.builder()
                 .monthlyOnDay(5)
                 .build();
+
         assertEquals(CycleType.MONTHLY, policy.getCycleType());
     }
 
@@ -48,6 +59,7 @@ public class PolicyBuilderTest {
                 .filter(not(daysOfWeek(WEDNESDAY)))
                 .action(NEXT_DAY)
                 .build();
+
         assertEquals(CycleType.MONTHLY, policy.getCycleType());
     }
 
@@ -56,6 +68,7 @@ public class PolicyBuilderTest {
         BillingPolicy policy = BillingPolicy.builder()
                 .weeklyOnDay(FRIDAY)
                 .build();
+
         assertEquals(CycleType.WEEKLY, policy.getCycleType());
     }
 
@@ -66,6 +79,7 @@ public class PolicyBuilderTest {
                 .filter(not(daysOfWeek(WEDNESDAY)))
                 .action(NEXT_DAY)
                 .build();
+
         assertEquals(CycleType.WEEKLY, policy.getCycleType());
     }
 
@@ -74,6 +88,7 @@ public class PolicyBuilderTest {
         BillingPolicy policy = BillingPolicy.builder()
                 .daily()
                 .build();
+
         assertEquals(CycleType.DAILY, policy.getCycleType());
     }
 
@@ -84,6 +99,7 @@ public class PolicyBuilderTest {
                 .filter(not(daysOfWeek(WEDNESDAY)))
                 .action(NEXT_DAY)
                 .build();
+
         assertEquals(CycleType.DAILY, policy.getCycleType());
     }
 
@@ -93,8 +109,7 @@ public class PolicyBuilderTest {
                 .weeklyOnDay(SATURDAY)
                 .build();
 
-        LocalDate oneSaturday = LocalDate.of(2017, 8, 5);
-        assertTrue(policy.isDueOn(oneSaturday));
+        assertTrue(policy.isDueOn(saturday5th));
     }
 
     @Test
@@ -105,10 +120,8 @@ public class PolicyBuilderTest {
                 .action(NEXT_DAY)
                 .build();
 
-        LocalDate oneSaturday = LocalDate.of(2017, 8, 5);
-        assertFalse(policy.isDueOn(oneSaturday));
-        LocalDate monday = LocalDate.of(2017, 8, 7);
-        assertFalse(policy.isDueOn(monday));
+        assertFalse(policy.isDueOn(saturday5th));
+        assertFalse(policy.isDueOn(monday7th));
     }
 
     @Test
@@ -117,8 +130,8 @@ public class PolicyBuilderTest {
                 .monthlyOnDay(5)
                 .build();
 
-        LocalDate oneSaturday = LocalDate.of(2017, 8, 5);
-        assertTrue(policy.isDueOn(oneSaturday));
+        assertTrue(policy.isDueOn(saturday5th));
+        assertTrue(policy.isDueOn(LocalDate.of(2017, 12, 5)));
     }
 
     @Test
@@ -129,12 +142,9 @@ public class PolicyBuilderTest {
                 .action(NEXT_DAY)
                 .build();
 
-        LocalDate oneSaturday = LocalDate.of(2017, 8, 5);
-        assertFalse(policy.isDueOn(oneSaturday));
-        LocalDate maybeSunday = LocalDate.of(2017, 8, 6);
-        assertFalse(policy.isDueOn(maybeSunday));
-        LocalDate shouldBeMonday = LocalDate.of(2017, 8, 7);
-        assertTrue(policy.isDueOn(shouldBeMonday));
+        assertFalse(policy.isDueOn(saturday5th));
+        assertFalse(policy.isDueOn(sunday6th));
+        assertTrue(policy.isDueOn(monday7th));
     }
 
     @Test
@@ -143,18 +153,10 @@ public class PolicyBuilderTest {
                 .daily()
                 .build();
 
-        LocalDate oneSaturday = LocalDate.of(2017, 8, 5);
-        List<LocalDate> nextBills = policy.upcomingDueDates(oneSaturday, 2);
+        List<LocalDate> nextBills = policy.upcomingDueDates(saturday5th, 2);
 
-        LocalDate expected1 = LocalDate.of(2017, 8, 5);
-        LocalDate actual1 = nextBills.get(0);
-        assertEquals(expected1, actual1);
-        assertEquals(SATURDAY, actual1.getDayOfWeek());
-
-        LocalDate expected2 = LocalDate.of(2017, 8, 6);
-        LocalDate actual2 = nextBills.get(1);
-        assertEquals(expected2, actual2);
-        assertEquals(SUNDAY, actual2.getDayOfWeek());
+        assertEquals(saturday5th, nextBills.get(0));
+        assertEquals(sunday6th, nextBills.get(1));
     }
 
     @Ignore  // this reveals an underlying bug we need to fix
@@ -166,39 +168,23 @@ public class PolicyBuilderTest {
                 .action(NEXT_DAY)
                 .build();
 
-        LocalDate oneSaturday = LocalDate.of(2017, 8, 5);
+        List<LocalDate> nextBills = policy.upcomingDueDates(saturday5th, 2);
 
-        List<LocalDate> nextBills = policy.upcomingDueDates(oneSaturday, 2);
-
-        LocalDate expected1 = LocalDate.of(2017, 8, 7);
-        LocalDate actual1 = nextBills.get(0);
-        assertEquals(expected1, actual1);
-        assertEquals(MONDAY, actual1.getDayOfWeek());
-
-        LocalDate expected2 = LocalDate.of(2017, 8, 8);
-        LocalDate actual2 = nextBills.get(1);
-        assertEquals(expected2, actual2);
-        assertEquals(TUESDAY, actual2.getDayOfWeek());
+        assertEquals(monday7th, nextBills.get(0));
+        assertEquals(tuesday8th, nextBills.get(1));
     }
 
     @Test
     public void upcomingDueDates_weeklySimple() {
+        LocalDate friday11th = friday4th.plusWeeks(1);
+
         BillingPolicy policy = BillingPolicy.builder()
                 .weeklyOnDay(FRIDAY)
                 .build();
+        List<LocalDate> nextBills = policy.upcomingDueDates(friday4th, 2);
 
-        LocalDate itsFriday = LocalDate.of(2017, 8, 4);
-        List<LocalDate> nextBills = policy.upcomingDueDates(itsFriday, 2);
-
-        LocalDate expected1 = LocalDate.of(2017, 8, 4);
-        LocalDate actual1 = nextBills.get(0);
-        assertEquals(expected1, actual1);
-        assertEquals(FRIDAY, actual1.getDayOfWeek());
-
-        LocalDate expected2 = LocalDate.of(2017, 8, 11);
-        LocalDate actual2 = nextBills.get(1);
-        assertEquals(expected2, actual2);
-        assertEquals(FRIDAY, actual2.getDayOfWeek());
+        assertEquals(friday4th, nextBills.get(0));
+        assertEquals(friday11th, nextBills.get(1));
     }
 
     @Test
@@ -208,20 +194,12 @@ public class PolicyBuilderTest {
                 .filter(not(daysOfWeek(SUNDAY)))
                 .action(NEXT_DAY)
                 .build();
+        List<LocalDate> nextBills = policy.upcomingDueDates(saturday5th, 2);
 
-        LocalDate oneSaturday = LocalDate.of(2017, 8, 5);
+        assertEquals(saturday5th, nextBills.get(0));
 
-        List<LocalDate> nextBills = policy.upcomingDueDates(oneSaturday, 2);
-
-        LocalDate expected1 = LocalDate.of(2017, 8, 5);
-        LocalDate actual1 = nextBills.get(0);
-        assertEquals(expected1, actual1);
-        assertEquals(SATURDAY, actual1.getDayOfWeek()); // just to be obvious
-
-        LocalDate expected2 = LocalDate.of(2017, 8, 12);
-        LocalDate actual2 = nextBills.get(1);
-        assertEquals(expected2, actual2);
-        assertEquals(SATURDAY, actual2.getDayOfWeek());
+        LocalDate saturday12th = LocalDate.of(2017, 8, 12);
+        assertEquals(saturday12th, nextBills.get(1));
     }
 
     @Test
@@ -230,18 +208,12 @@ public class PolicyBuilderTest {
                 .monthlyOnDay(5)
                 .build();
 
-        LocalDate oneSaturday = LocalDate.of(2017, 8, 5);
-        List<LocalDate> nextBills = policy.upcomingDueDates(oneSaturday, 2);
+        List<LocalDate> nextBills = policy.upcomingDueDates(saturday5th, 2);
 
-        LocalDate expected1 = LocalDate.of(2017, 8, 5);
-        LocalDate actual1 = nextBills.get(0);
-        assertEquals(expected1, actual1);
-        assertEquals(SATURDAY, actual1.getDayOfWeek());
+        assertEquals(saturday5th, nextBills.get(0));
 
-        LocalDate expected2 = LocalDate.of(2017, 9, 5);
-        LocalDate actual2 = nextBills.get(1);
-        assertEquals(expected2, actual2);
-        assertEquals(TUESDAY, actual2.getDayOfWeek());
+        LocalDate secondExpected = LocalDate.of(2017, 9, 5);
+        assertEquals(secondExpected, nextBills.get(1));
     }
 
     @Test
@@ -252,14 +224,10 @@ public class PolicyBuilderTest {
                 .action(NEXT_DAY)
                 .build();
 
-        LocalDate oneSaturday = LocalDate.of(2017, 8, 5);
+        List<LocalDate> nextBills = policy.upcomingDueDates(saturday5th, 2);
 
-        List<LocalDate> nextBills = policy.upcomingDueDates(oneSaturday, 2);
-
-        LocalDate expected1 = LocalDate.of(2017, 8, 7);
         LocalDate actual1 = nextBills.get(0);
-        assertEquals(expected1, actual1);
-        assertEquals(MONDAY, actual1.getDayOfWeek()); // just to be obvious
+        assertEquals(monday7th, actual1);
 
         LocalDate expected2 = LocalDate.of(2017, 9, 5);
         LocalDate actual2 = nextBills.get(1);
