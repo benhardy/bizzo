@@ -24,11 +24,8 @@ import net.bhardy.bizzo.billing.PolicyFilter;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.IntStream.range;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
 
 /**
  * Internal implementation of the PolicyBuilder.
@@ -46,12 +43,9 @@ public class PolicyBuilderImpl implements PolicyBuilder {
             }
 
             @Override
-            public List<LocalDate> upcomingDueDates(LocalDate day, int howMany) {
-                List<LocalDate> results = new ArrayList<>();
-                for (int num = 0; num < howMany; num++) {
-                    results.add(day.plusDays(num));
-                }
-                return results;
+            public Stream<LocalDate> upcomingDueDates(final LocalDate startingFrom) {
+                final AtomicReference<LocalDate> current = new AtomicReference<>(startingFrom);
+                return Stream.generate(() -> current.getAndUpdate(now -> now.plusDays(1)));
             }
 
             @Override
@@ -75,15 +69,12 @@ public class PolicyBuilderImpl implements PolicyBuilder {
             }
 
             @Override
-            public List<LocalDate> upcomingDueDates(LocalDate day, int howMany) {
-                DayOfWeek todayIsA = day.getDayOfWeek();
-                int daysTilNext = (onWhichDay.getValue() + DAYS_PER_WEEK - todayIsA.getValue()) % DAYS_PER_WEEK;
-                LocalDate first = day.plusDays(daysTilNext);
-                List<LocalDate> results = new ArrayList<>();
-                for (int num = 0; num < howMany; num++) {
-                    results.add(first.plusWeeks(num));
-                }
-                return results;
+            public Stream<LocalDate> upcomingDueDates(final LocalDate fromDay) {
+                final DayOfWeek todayIsA = fromDay.getDayOfWeek();
+                final int daysTilNext = (onWhichDay.getValue() + DAYS_PER_WEEK - todayIsA.getValue()) % DAYS_PER_WEEK;
+                final LocalDate first = fromDay.plusDays(daysTilNext);
+                final AtomicReference<LocalDate> current = new AtomicReference<>(first);
+                return Stream.generate(() -> current.getAndUpdate(now -> now.plusWeeks(1)));
             }
 
             @Override
@@ -104,10 +95,11 @@ public class PolicyBuilderImpl implements PolicyBuilder {
             }
 
             @Override
-            public List<LocalDate> upcomingDueDates(LocalDate day, int howMany) {
-                final int monthOffset = (day.getDayOfMonth() > dayOfMonth) ? 1 : 0;
-                final LocalDate first = day.withDayOfMonth(dayOfMonth).plusMonths(monthOffset);
-                return range(0, howMany).mapToObj(first::plusMonths).collect(toList());
+            public Stream<LocalDate> upcomingDueDates(final LocalDate fromDay) {
+                final int monthOffset = (fromDay.getDayOfMonth() > dayOfMonth) ? 1 : 0;
+                final LocalDate first = fromDay.withDayOfMonth(dayOfMonth).plusMonths(monthOffset);
+                final AtomicReference<LocalDate> current = new AtomicReference<>(first);
+                return Stream.generate(() -> current.getAndUpdate(now -> now.plusMonths(1)));
             }
 
             @Override
