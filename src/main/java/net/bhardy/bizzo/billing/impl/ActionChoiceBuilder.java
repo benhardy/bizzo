@@ -22,8 +22,9 @@ import net.bhardy.bizzo.billing.FilterOption;
 import net.bhardy.bizzo.billing.PolicyFilter;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.Period;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
 
 /**
  * The internal implementation of the ActionChoice.
@@ -44,21 +45,18 @@ final class ActionChoiceBuilder implements ActionChoice {
     @Override
     public FilterOption action(Kind actionKind) {
         BillingPolicy layered = new BillingPolicy() {
+            private static final int RANGE = 12;
+
             @Override
             public boolean isDueOn(final LocalDate today) {
-                if (!filter.applies(today)) {
-                    return false;
-                }
-                if (underlyingPolicy.isDueOn(today)) {
-                    return true;
-                }
-                LocalDate original = findOriginalDate(today, actionKind);
-                return underlyingPolicy.isDueOn(original);
+                final Period howFarBack = underlyingPolicy.getCycleType().getPeriod().multipliedBy(RANGE);
+                final LocalDate jumpBack = today.minus(howFarBack);
+                return upcomingDueDates(jumpBack).limit(RANGE * 2).anyMatch(today::equals);
             }
 
             @Override
-            public List<LocalDate> upcomingDueDates(LocalDate day, int howMany) {
-                return filterDates(day, howMany, actionKind);
+            public Stream<LocalDate> upcomingDueDates(LocalDate day) {
+                return filterDates(day, actionKind);
             }
 
             @Override
@@ -69,51 +67,55 @@ final class ActionChoiceBuilder implements ActionChoice {
         return policyBuilder.buildFilterOption(layered);
     }
 
-    private LocalDate findOriginalDate(LocalDate today, Kind kind) {
-        final int delta;
-        if (kind == Kind.NEXT_DAY) {
-            delta = -1;
-        } else if (kind == Kind.PREVIOUS_DAY) {
-            delta = 1;
-        } else {
-            throw new IllegalArgumentException("unwanted kind " + kind);
+    private Stream<LocalDate> filterDates(LocalDate startDay, final Kind actionKind) {
+        final Stream<LocalDate> considering = underlyingPolicy.upcomingDueDates(startDay);
+        if (actionKind == Kind.SKIP) {
+            return considering.filter(filter::applies);
         }
-        LocalDate original = today;
-        LocalDate check = today.plusDays(delta);
-        while (!filter.applies(check)) {
-            original = check;
-            check = check.plusDays(delta);
+        if (actionKind == Kind.NEXT_DAY) {
+            final AtomicReference<LocalDate> latest = new AtomicReference<>(startDay);
+
+            return considering.flatMap(day -> {
+                if (latest.get().isAfter(day)) {
+                    return Stream.empty();
+                }
+                LocalDate now = findNextFreeDate(day);
+                latest.set(now.plusDays(1));
+                return Stream.of(now);
+            });
         }
-        return original;
+        if (actionKind == Kind.PREVIOUS_DAY) {
+            final AtomicReference<LocalDate> last = new AtomicReference<>(startDay.minusDays(1));
+
+            return considering.flatMap(day -> {
+                final LocalDate skipBack = findPreviousFreeDate(day, last.get());
+                if (skipBack == null) {
+                    return Stream.empty();
+                }
+                last.set(skipBack);
+                return Stream.of(skipBack);
+            });
+        }
+        throw new UnsupportedOperationException("unsupported ActionKind: " + actionKind);
     }
 
-    private List<LocalDate> filterDates(LocalDate day, int howMany, Kind actionKind) {
-        List<LocalDate> considering = underlyingPolicy.upcomingDueDates(day, howMany);
-        List<LocalDate> filtered = new ArrayList<>();
-        for (LocalDate when : considering) {
-            when = adjustDateIfNeeded(when, actionKind, false);
-            if (when != null && !when.isBefore(day)) {
-                filtered.add(when);
-            }
+    private LocalDate findNextFreeDate(LocalDate startingAt) {
+        LocalDate now = startingAt;
+        while (!filter.applies(now)) {
+            now = now.plusDays(1);
         }
-        return filtered;
+        return now;
     }
 
-    private LocalDate adjustDateIfNeeded(LocalDate when, Kind actionKind, boolean reversed) {
-        final int delta = reversed ? -1 : 1;
-        while (when != null && !filter.applies(when)) {
-            switch (actionKind) {
-                case PREVIOUS_DAY:
-                    when = when.minusDays(delta);
-                    break;
-                case NEXT_DAY:
-                    when = when.plusDays(delta);
-                    break;
-                case SKIP:
-                    when = null;
-                    break;
+    private LocalDate findPreviousFreeDate(LocalDate starting, LocalDate notBefore) {
+        assert (starting.isAfter(notBefore));
+        LocalDate now = starting;
+        while (!filter.applies(now)) {
+            now = now.minusDays(1);
+            if (!now.isAfter(notBefore)) {
+                return null;
             }
         }
-        return when;
+        return now;
     }
 }

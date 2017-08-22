@@ -19,6 +19,7 @@ import net.bhardy.bizzo.billing.impl.PolicyBuilderImpl;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * A billing policy helps you figure out billing cycles, i.e. when bills are due.
@@ -50,11 +51,10 @@ public interface BillingPolicy {
      * This is inclusive. A bill could fall due on the first day you're checking.
      *
      * @param day - the first date to check
-     * @param howMany - the total number of upcoming dates to check
      *
-     * @return a list of howMany dates at or after firstDay, in chronological order.
+     * @return an infinite stream of subsequent due dates, in chronological order.
      */
-    List<LocalDate> upcomingDueDates(LocalDate day, int howMany);
+    Stream<LocalDate> upcomingDueDates(LocalDate day);
 
     /**
      * Get the rough billing cycle type for this policy, e.g. MONTHLY, WEEKLY etc.

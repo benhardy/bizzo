@@ -15,19 +15,32 @@
  */
 package net.bhardy.bizzo.billing;
 
+import java.time.Period;
+
 /**
  * Billing cycles typically fall roughly into the following time cycles.
  * <p>
  * You can use PolicyFilters to make behaviour more specific.
  */
 public enum CycleType {
-    DAILY,
-    WEEKLY,
-    BIWEEKLY,
-    SEMIMONTHLY,
-    MONTHLY,
-    BIMONTHLY,
-    QUARTERLY,
-    SEMIANNUALLY,
-    ANNUALLY
+
+    DAILY(Period.ofDays(1)),
+    WEEKLY(Period.ofWeeks(1)),
+    BIWEEKLY(Period.ofWeeks(2)),
+    //SEMIMONTHLY(Period.ofDays(1)),
+    MONTHLY(Period.ofMonths(1)),
+    BIMONTHLY(Period.ofMonths(2)),
+    QUARTERLY(Period.ofMonths(3)),
+    SEMIANNUALLY(Period.ofMonths(6)),
+    ANNUALLY(Period.ofYears(1));
+
+    private final Period period;
+
+    CycleType(Period period) {
+        this.period = period;
+    }
+
+    public Period getPeriod() {
+        return period;
+    }
 }
