@@ -24,13 +24,8 @@ import net.bhardy.bizzo.billing.PolicyFilter;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
-
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.IntStream.range;
 
 /**
  * Internal implementation of the PolicyBuilder.

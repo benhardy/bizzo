@@ -18,7 +18,6 @@ package net.bhardy.bizzo.billing;
 import net.bhardy.bizzo.billing.impl.PolicyBuilderImpl;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.stream.Stream;
 
 /**

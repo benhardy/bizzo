@@ -51,7 +51,7 @@ final class ActionChoiceBuilder implements ActionChoice {
             public boolean isDueOn(final LocalDate today) {
                 final Period howFarBack = underlyingPolicy.getCycleType().getPeriod().multipliedBy(RANGE);
                 final LocalDate jumpBack = today.minus(howFarBack);
-                return upcomingDueDates(jumpBack).limit(RANGE * 2).anyMatch(today::equals);
+                return upcomingDueDates(jumpBack).limit(RANGE * 2L).anyMatch(today::equals);
             }
 
             @Override

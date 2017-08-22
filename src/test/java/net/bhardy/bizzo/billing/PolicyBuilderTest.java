@@ -38,6 +38,7 @@ import static org.junit.Assert.assertTrue;
 /**
  *
  */
+@SuppressWarnings("squid:S1118") // don't care if PolicyBuilderTest constructor is public
 public class PolicyBuilderTest {
     private static final LocalDate friday4th = LocalDate.of(2017, 8, 4);
     private static final LocalDate saturday5th = LocalDate.of(2017, 8, 5);

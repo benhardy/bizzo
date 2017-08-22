@@ -34,7 +34,7 @@ public enum CycleType {
     SEMIANNUALLY(Period.ofMonths(6)),
     ANNUALLY(Period.ofYears(1));
 
-    private final Period period;
+    private final transient Period period;
 
     CycleType(Period period) {
         this.period = period;
